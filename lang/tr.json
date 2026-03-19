@@ -1,0 +1,119 @@
+{
+    "appName": "Web Draw",
+    "tools": {
+        "hand": "El (Kaydır)",
+        "pen": "Kalem",
+        "eraser": "Silgi",
+        "blur": "Bulanıklaştır",
+        "text": "Yazı",
+        "shape": "Şekiller",
+        "urlOverlay": "Siteye Git",
+        "settings": "Ayarlar",
+        "interact": "Etkileşim Modu"
+    },
+    "penTypes": {
+        "ballpoint": "Tükenmez",
+        "fountain": "Dolma Kalem",
+        "pencil": "Kurşun Kalem",
+        "marker": "Fosforlu",
+        "watercolor": "Suluboya",
+        "crayon": "Kuruboya"
+    },
+    "shapeTypes": {
+        "rectangle": "Dikdörtgen",
+        "circle": "Daire",
+        "line": "Çizgi",
+        "arrow": "Ok",
+        "triangle": "Üçgen",
+        "star": "Yıldız"
+    },
+    "popup": {
+        "penType": "Kalem Tipi",
+        "color": "Renk",
+        "size": "Boyut",
+        "opacity": "Saydamlık",
+        "strength": "Güç",
+        "font": "Yazı Tipi",
+        "fontSize": "Yazı Boyutu",
+        "bold": "Kalın",
+        "italic": "İtalik",
+        "shapeType": "Şekil",
+        "strokeColor": "Çizgi Rengi",
+        "fillColor": "Dolgu",
+        "strokeWidth": "Kalınlık",
+        "custom": "Özel"
+    },
+    "settings": {
+        "title": "Ayarlar",
+        "general": "Genel",
+        "appearance": "Görünüm",
+        "sidebarPosition": "Kenar Çubuğu Konumu",
+        "positions": {
+            "left": "Sol",
+            "right": "Sağ",
+            "top": "Üst",
+            "bottom": "Alt",
+            "mac": "Dock (Mac)"
+        },
+        "mode": "Arayüz Modu",
+        "simple": "Basit",
+        "professional": "Profesyonel",
+        "background": "Arkaplan",
+        "bgType": "Arkaplan Tipi",
+        "bgColor": "Arkaplan Rengi",
+        "bgDynamic": "Otomatik tema rengi",
+        "gridSize": "Izgara Aralığı",
+        "solid": "Düz",
+        "dots": "Noktalar",
+        "lines": "Çizgiler",
+        "grid": "Izgara",
+        "input": "Giriş",
+        "rightClick": "Sağ tık eylemi",
+        "rightClickOptions": {
+            "eraser": "Silgi",
+            "pan": "Kaydır",
+            "none": "Hiçbiri"
+        },
+        "browseSite": "Siteye Git",
+        "urlPlaceholder": "URL girin...",
+        "urlGo": "Git",
+        "urlBack": "Geri",
+        "urlForward": "İleri",
+        "urlRefresh": "Yenile",
+        "urlClose": "Kapat",
+        "openFile": "Dosya Aç",
+        "openFileDesc": "Açıklama eklemek için resim veya PDF açın",
+        "export": "Dışa Aktar",
+        "exportPng": "PNG olarak dışa aktar",
+        "exportSvg": "SVG olarak dışa aktar",
+        "clearCanvas": "Tuvali Temizle",
+        "clearConfirm": "Tüm tuval temizlensin mi? Bu işlem geri alınamaz.",
+        "extension": "Tarayıcı Eklentisi",
+        "downloadExtension": "Eklentiyi İndir",
+        "extensionDesc": "Herhangi bir web sitesinde çizim yapmak için Chrome eklentisini yükleyin.",
+        "shortcuts": "Klavye Kısayolları",
+        "about": "Hakkında",
+        "version": "Sürüm"
+    },
+    "mode": {
+        "draw": "Çizim Modu",
+        "interact": "Etkileşim Modu",
+        "hand": "Kaydırma Modu"
+    },
+    "toast": {
+        "canvasCleared": "Tuval temizlendi",
+        "exported": "Çizim dışa aktarıldı",
+        "urlLoaded": "Site yüklendi",
+        "urlClosed": "Kaplama kapatıldı",
+        "undone": "Geri alındı",
+        "redone": "İleri alındı",
+        "fileLoaded": "Dosya yüklendi",
+        "copied": "Panoya kopyalandı"
+    },
+    "zoom": {
+        "zoomIn": "Yakınlaştır",
+        "zoomOut": "Uzaklaştır",
+        "resetZoom": "Görünümü Sıfırla",
+        "fitToScreen": "Ekrana Sığdır"
+    }
+}

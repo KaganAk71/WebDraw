@@ -1,0 +1,119 @@
+{
+    "appName": "Web Draw",
+    "tools": {
+        "hand": "Hand (Pan)",
+        "pen": "Pen",
+        "eraser": "Eraser",
+        "blur": "Blur",
+        "text": "Text",
+        "shape": "Shapes",
+        "urlOverlay": "Browse Site",
+        "settings": "Settings",
+        "interact": "Interact Mode"
+    },
+    "penTypes": {
+        "ballpoint": "Ballpoint",
+        "fountain": "Fountain Pen",
+        "pencil": "Pencil",
+        "marker": "Highlighter",
+        "watercolor": "Watercolor",
+        "crayon": "Crayon"
+    },
+    "shapeTypes": {
+        "rectangle": "Rectangle",
+        "circle": "Circle",
+        "line": "Line",
+        "arrow": "Arrow",
+        "triangle": "Triangle",
+        "star": "Star"
+    },
+    "popup": {
+        "penType": "Pen Type",
+        "color": "Color",
+        "size": "Size",
+        "opacity": "Opacity",
+        "strength": "Strength",
+        "font": "Font",
+        "fontSize": "Font Size",
+        "bold": "Bold",
+        "italic": "Italic",
+        "shapeType": "Shape",
+        "strokeColor": "Stroke",
+        "fillColor": "Fill",
+        "strokeWidth": "Width",
+        "custom": "Custom"
+    },
+    "settings": {
+        "title": "Settings",
+        "general": "General",
+        "appearance": "Appearance",
+        "sidebarPosition": "Sidebar Position",
+        "positions": {
+            "left": "Left",
+            "right": "Right",
+            "top": "Top",
+            "bottom": "Bottom",
+            "mac": "Dock (Mac)"
+        },
+        "mode": "Interface Mode",
+        "simple": "Simple",
+        "professional": "Professional",
+        "background": "Background",
+        "bgType": "Background Type",
+        "bgColor": "Background Color",
+        "bgDynamic": "Auto theme colors",
+        "gridSize": "Grid Spacing",
+        "solid": "Solid",
+        "dots": "Dots",
+        "lines": "Lines",
+        "grid": "Grid",
+        "input": "Input",
+        "rightClick": "Right-click action",
+        "rightClickOptions": {
+            "eraser": "Eraser",
+            "pan": "Pan",
+            "none": "None"
+        },
+        "browseSite": "Browse Site",
+        "urlPlaceholder": "Enter URL to load...",
+        "urlGo": "Go",
+        "urlBack": "Back",
+        "urlForward": "Forward",
+        "urlRefresh": "Refresh",
+        "urlClose": "Close",
+        "openFile": "Open File",
+        "openFileDesc": "Open an image or PDF to annotate",
+        "export": "Export",
+        "exportPng": "Export as PNG",
+        "exportSvg": "Export as SVG",
+        "clearCanvas": "Clear Canvas",
+        "clearConfirm": "Clear the entire canvas? This cannot be undone.",
+        "extension": "Browser Extension",
+        "downloadExtension": "Download Extension",
+        "extensionDesc": "Install the Chrome extension to draw on any website.",
+        "shortcuts": "Keyboard Shortcuts",
+        "about": "About",
+        "version": "Version"
+    },
+    "mode": {
+        "draw": "Drawing Mode",
+        "interact": "Interaction Mode",
+        "hand": "Pan Mode"
+    },
+    "toast": {
+        "canvasCleared": "Canvas cleared",
+        "exported": "Drawing exported",
+        "urlLoaded": "Site loaded",
+        "urlClosed": "Overlay closed",
+        "undone": "Undone",
+        "redone": "Redone",
+        "fileLoaded": "File loaded",
+        "copied": "Copied to clipboard"
+    },
+    "zoom": {
+        "zoomIn": "Zoom In",
+        "zoomOut": "Zoom Out",
+        "resetZoom": "Reset View",
+        "fitToScreen": "Fit to Screen"
+    }
+}

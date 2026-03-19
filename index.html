@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Web Draw — A professional browser-based drawing and annotation tool. Draw on any website, export your work, and enjoy a beautiful Mac-style interface.">
+    <title>Web Draw — Browser Drawing Engine</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+</head>
+
+<body>
+
+    <!-- ═══ Header ═══ -->
+    <header class="app-header" id="app-header">
+        <div class="app-header__brand">
+            <div class="app-header__logo">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                    <path d="M2 2l7.586 7.586" />
+                    <circle cx="11" cy="11" r="2" />
+                </svg>
+            </div>
+            <span class="app-header__title" data-i18n="appName">Web Draw</span>
+        </div>
+
+        <div class="app-header__actions">
+            <!-- Language Selector -->
+            <div class="lang-selector" id="lang-selector">
+                <button class="lang-selector__btn" data-lang-btn="en" id="lang-en">EN</button>
+                <button class="lang-selector__btn active" data-lang-btn="tr" id="lang-tr">TR</button>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme"></button>
+        </div>
+    </header>
+
+    <!-- ═══ Sidebar ═══ -->
+    <nav class="sidebar" id="sidebar">
+        <!-- Pen -->
+        <button class="tool-btn active" data-tool="pen" data-i18n-tooltip="tools.pen" data-tooltip="Pen" id="tool-pen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                <path d="M2 2l7.586 7.586" />
+                <circle cx="11" cy="11" r="2" />
+            </svg>
+        </button>
+
+        <!-- Transparent Pen -->
+        <button class="tool-btn" data-tool="transparentPen" data-i18n-tooltip="tools.transparentPen"
+            data-tooltip="Transparent Pen" id="tool-transparent-pen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                <path d="m15 5 4 4" />
+            </svg>
+        </button>
+
+        <!-- Eraser -->
+        <button class="tool-btn" data-tool="eraser" data-i18n-tooltip="tools.eraser" data-tooltip="Eraser"
+            id="tool-eraser">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" />
+                <path d="M22 21H7" />
+                <path d="m5 11 9 9" />
+            </svg>
+        </button>
+
+        <!-- Blur -->
+        <button class="tool-btn" data-tool="blur" data-i18n-tooltip="tools.blur" data-tooltip="Blur" id="tool-blur">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                <path d="M2 12h20" />
+            </svg>
+        </button>
+
+        <div class="sidebar__divider"></div>
+
+        <!-- URL Overlay -->
+        <button class="tool-btn" data-tool="urlOverlay" data-i18n-tooltip="tools.urlOverlay" data-tooltip="URL Overlay"
+            id="tool-url">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+        </button>
+
+        <!-- Interact Toggle -->
+        <button class="tool-btn" data-tool="interact" data-i18n-tooltip="tools.interact" data-tooltip="Interact Mode"
+            id="tool-interact">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" />
+                <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" />
+                <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" />
+                <path
+                    d="M18 8a2 2 0 0 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+            </svg>
+        </button>
+
+        <div class="sidebar__divider"></div>
+
+        <!-- Settings -->
+        <button class="tool-btn" data-tool="settings" data-i18n-tooltip="tools.settings" data-tooltip="Settings"
+            id="tool-settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+            </svg>
+        </button>
+    </nav>
+
+    <!-- ═══ Canvas Area ═══ -->
+    <main class="canvas-area" id="canvas-area">
+        <iframe id="url-frame" sandbox="allow-scripts allow-same-origin allow-forms" title="URL Overlay"></iframe>
+        <canvas id="bg-canvas"></canvas>
+        <canvas id="draw-canvas"></canvas>
+    </main>
+
+    <!-- ═══ Settings Panel ═══ -->
+    <aside class="settings-panel" id="settings-panel">
+        <div class="settings-panel__header">
+            <h2 class="settings-panel__title" data-i18n="settings.title">Settings</h2>
+            <button class="settings-panel__close" id="settings-close" aria-label="Close settings">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Stroke Color -->
+        <div class="settings-section">
+            <div class="settings-section__title" data-i18n="settings.strokeColor">Stroke Color</div>
+            <div class="color-picker-wrapper">
+                <div class="color-picker-swatch">
+                    <input type="color" id="stroke-color" value="#007aff">
+                </div>
+                <input type="text" class="color-picker-hex" id="stroke-color-hex" value="#007aff" maxlength="7">
+            </div>
+        </div>
+
+        <!-- Stroke Width -->
+        <div class="settings-section">
+            <div class="settings-section__title" data-i18n="settings.strokeWidth">Stroke Width</div>
+            <div class="setting-row">
+                <input type="range" id="stroke-width" min="1" max="50" value="3">
+                <span class="setting-row__value" id="stroke-width-value">3px</span>
+            </div>
+        </div>
+
+        <!-- Opacity -->
+        <div class="settings-section">
+            <div class="settings-section__title" data-i18n="settings.opacity">Opacity</div>
+            <div class="setting-row">
+                <input type="range" id="opacity-slider" min="1" max="100" value="20">
+                <span class="setting-row__value" id="opacity-value">20%</span>
+            </div>
+        </div>
+
+        <!-- Background Type -->
+        <div class="settings-section">
+            <div class="settings-section__title" data-i18n="settings.bgType">Background Type</div>
+            <div class="bg-type-grid">
+                <button class="bg-type-btn" data-bg-type="solid" id="bg-solid">
+                    <div class="bg-type-btn__icon">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <rect x="1" y="1" width="18" height="18" rx="3" fill="currentColor" opacity="0.15"
+                                stroke="currentColor" stroke-width="1" />
+                        </svg>
+                    </div>
+                    <span data-i18n="settings.solid">Solid</span>
+                </button>
+                <button class="bg-type-btn active" data-bg-type="dots" id="bg-dots">
+                    <div class="bg-type-btn__icon">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <circle cx="5" cy="5" r="1.2" />
+                            <circle cx="10" cy="5" r="1.2" />
+                            <circle cx="15" cy="5" r="1.2" />
+                            <circle cx="5" cy="10" r="1.2" />
+                            <circle cx="10" cy="10" r="1.2" />
+                            <circle cx="15" cy="10" r="1.2" />
+                            <circle cx="5" cy="15" r="1.2" />
+                            <circle cx="10" cy="15" r="1.2" />
+                            <circle cx="15" cy="15" r="1.2" />
+                        </svg>
+                    </div>
+                    <span data-i18n="settings.dots">Dots</span>
+                </button>
+                <button class="bg-type-btn" data-bg-type="lines" id="bg-lines">
+                    <div class="bg-type-btn__icon">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                            stroke-width="0.8">
+                            <line x1="0" y1="5" x2="20" y2="5" />
+                            <line x1="0" y1="10" x2="20" y2="10" />
+                            <line x1="0" y1="15" x2="20" y2="15" />
+                        </svg>
+                    </div>
+                    <span data-i18n="settings.lines">Lines</span>
+                </button>
+                <button class="bg-type-btn" data-bg-type="grid" id="bg-grid">
+                    <div class="bg-type-btn__icon">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                            stroke-width="0.8">
+                            <line x1="5" y1="0" x2="5" y2="20" />
+                            <line x1="10" y1="0" x2="10" y2="20" />
+                            <line x1="15" y1="0" x2="15" y2="20" />
+                            <line x1="0" y1="5" x2="20" y2="5" />
+                            <line x1="0" y1="10" x2="20" y2="10" />
+                            <line x1="0" y1="15" x2="20" y2="15" />
+                        </svg>
+                    </div>
+                    <span data-i18n="settings.grid">Grid</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Background Color -->
+        <div class="settings-section">
+            <div class="settings-section__title" data-i18n="settings.bgColor">Background Color</div>
+            <div class="color-picker-wrapper">
+                <div class="color-picker-swatch">
+                    <input type="color" id="bg-color" value="#ffffff">
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid Size -->
+        <div class="settings-section">
+            <div class="settings-section__title" data-i18n="settings.gridSize">Grid Spacing</div>
+            <div class="setting-row">
+                <input type="range" id="grid-size" min="8" max="80" value="24">
+                <span class="setting-row__value" id="grid-size-value">24px</span>
+            </div>
+        </div>
+
+        <!-- URL Overlay -->
+        <div class="settings-section">
+            <div class="settings-section__title" data-i18n="settings.background">URL Overlay</div>
+            <div class="url-input-group">
+                <input type="text" class="url-input" id="url-input" data-i18n-placeholder="settings.urlPlaceholder"
+                    placeholder="Enter URL to overlay...">
+                <button class="url-go-btn" id="url-go-btn" data-i18n="settings.urlGo">Load</button>
+            </div>
+            <div style="margin-top: var(--space-sm);">
+                <button class="btn btn--ghost btn--full" id="url-close-btn" data-i18n="settings.urlClose">Close
+                    Overlay</button>
+            </div>
+        </div>
+
+        <!-- Export -->
+        <div class="settings-section">
+            <div class="settings-section__title" data-i18n="settings.export">Export</div>
+            <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+                <button class="btn btn--primary btn--full" id="export-png">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    <span data-i18n="settings.exportPng">Export as PNG</span>
+                </button>
+                <button class="btn btn--ghost btn--full" id="export-svg">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    <span data-i18n="settings.exportSvg">Export as SVG</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Clear Canvas -->
+        <div class="settings-section">
+            <button class="btn btn--danger btn--full" id="clear-canvas">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
+                <span data-i18n="settings.clearCanvas">Clear Canvas</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ═══ Mode Indicator ═══ -->
+    <div class="mode-indicator" id="mode-indicator" data-i18n="mode.draw">Drawing Mode</div>
+
+    <!-- ═══ Cursor Preview ═══ -->
+    <div class="cursor-preview" id="cursor-preview"></div>
+
+    <!-- ═══ Toast ═══ -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ═══ App Script ═══ -->
+    <script type="module" src="js/main.js"></script>
+
+</body>
+
+</html>
