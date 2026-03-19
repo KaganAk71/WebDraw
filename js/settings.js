@@ -1,102 +1,122 @@
 // ──────────────────────────────────────────────────────────────────────
-// SettingsPanel  (js/settings.js)
+// SettingsPanel  (js/settings.js)  — sidebar pos, pro/simple, bg, etc.
 // ──────────────────────────────────────────────────────────────────────
-
-import AppState from './state.js';
-import BackgroundRenderer from './background.js';
+import AppState, { ToolConfig } from './state.js';
+import I18n from './i18n.js';
 
 const SettingsPanel = {
-    panel: null,
-
     init() {
-        this.panel = document.getElementById('settings-panel');
+        const panel = document.getElementById('settings-panel');
 
-        // Toggle
-        AppState.subscribe('settingsOpen', (open) => {
-            this.panel?.classList.toggle('open', open);
-        });
-
-        // Close button
+        AppState.subscribe('settingsOpen', open => panel?.classList.toggle('open', open));
         document.getElementById('settings-close')?.addEventListener('click', () => {
             AppState.settingsOpen = false;
         });
 
-        this.bindControls();
+        this._bindSidebarPosition();
+        this._bindProMode();
+        this._bindBackground();
+        this._bindRightClick();
     },
 
-    bindControls() {
-        // Stroke color
-        const colorPicker = document.getElementById('stroke-color');
-        const colorHex = document.getElementById('stroke-color-hex');
-        if (colorPicker) {
-            colorPicker.value = AppState.strokeColor;
-            colorPicker.addEventListener('input', (e) => {
-                AppState.strokeColor = e.target.value;
-                if (colorHex) colorHex.value = e.target.value;
+    _bindSidebarPosition() {
+        document.querySelectorAll('[data-sidebar-pos]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                AppState.sidebarPosition = btn.dataset.sidebarPos;
+                this._updateSidebarUI();
             });
-        }
-        if (colorHex) {
-            colorHex.value = AppState.strokeColor;
-            colorHex.addEventListener('change', (e) => {
-                let val = e.target.value;
-                if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-                    AppState.strokeColor = val;
-                    if (colorPicker) colorPicker.value = val;
-                }
-            });
-        }
+            btn.classList.toggle('active', btn.dataset.sidebarPos === AppState.sidebarPosition);
+        });
 
-        // Stroke width
-        const widthSlider = document.getElementById('stroke-width');
-        const widthValue = document.getElementById('stroke-width-value');
-        if (widthSlider) {
-            widthSlider.value = AppState.strokeWidth;
-            widthSlider.addEventListener('input', (e) => {
-                AppState.strokeWidth = parseInt(e.target.value);
-                if (widthValue) widthValue.textContent = e.target.value + 'px';
-            });
-        }
+        AppState.subscribe('sidebarPosition', pos => {
+            this._applySidebarPosition(pos);
+            this._updateSidebarUI();
+        });
+        this._applySidebarPosition(AppState.sidebarPosition);
+    },
 
-        // Opacity
-        const opacitySlider = document.getElementById('opacity-slider');
-        const opacityValue = document.getElementById('opacity-value');
-        if (opacitySlider) {
-            opacitySlider.value = AppState.opacity;
-            opacitySlider.addEventListener('input', (e) => {
-                AppState.opacity = parseInt(e.target.value);
-                if (opacityValue) opacityValue.textContent = e.target.value + '%';
-            });
-        }
+    _applySidebarPosition(pos) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+        sidebar.className = 'sidebar sidebar--' + pos;
+    },
 
-        // Background type buttons
+    _updateSidebarUI() {
+        document.querySelectorAll('[data-sidebar-pos]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.sidebarPos === AppState.sidebarPosition);
+        });
+    },
+
+    _bindProMode() {
+        document.querySelectorAll('[data-mode-opt]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const isPro = btn.dataset.modeOpt === 'pro';
+                AppState.proMode = isPro;
+                document.body.classList.toggle('pro-mode', isPro);
+                document.querySelectorAll('[data-mode-opt]').forEach(b => {
+                    b.classList.toggle('active', b.dataset.modeOpt === btn.dataset.modeOpt);
+                });
+            });
+        });
+        // Init
+        document.body.classList.toggle('pro-mode', AppState.proMode);
+        document.querySelectorAll('[data-mode-opt]').forEach(b => {
+            b.classList.toggle('active',
+                (b.dataset.modeOpt === 'pro' && AppState.proMode) ||
+                (b.dataset.modeOpt === 'simple' && !AppState.proMode)
+            );
+        });
+    },
+
+    _bindBackground() {
+        // BG type buttons
         document.querySelectorAll('[data-bg-type]').forEach(btn => {
             btn.addEventListener('click', () => {
                 AppState.bgType = btn.dataset.bgType;
-                document.querySelectorAll('[data-bg-type]').forEach(b => {
-                    b.classList.toggle('active', b.dataset.bgType === AppState.bgType);
-                });
+                document.querySelectorAll('[data-bg-type]').forEach(b =>
+                    b.classList.toggle('active', b.dataset.bgType === AppState.bgType));
             });
             btn.classList.toggle('active', btn.dataset.bgType === AppState.bgType);
         });
 
-        // Background color
-        const bgColorPicker = document.getElementById('bg-color');
-        if (bgColorPicker) {
-            bgColorPicker.value = AppState.bgColor;
-            bgColorPicker.addEventListener('input', (e) => {
-                AppState.bgColor = e.target.value;
-            });
+        // BG color (light)
+        const bgPicker = document.getElementById('bg-color');
+        if (bgPicker) {
+            bgPicker.value = AppState.bgColor;
+            bgPicker.addEventListener('input', e => { AppState.bgColor = e.target.value; });
+        }
+
+        // BG color (dark)
+        const bgDarkPicker = document.getElementById('bg-dark-color');
+        if (bgDarkPicker) {
+            bgDarkPicker.value = AppState.bgDarkColor;
+            bgDarkPicker.addEventListener('input', e => { AppState.bgDarkColor = e.target.value; });
+        }
+
+        // Dynamic toggle
+        const dynCheck = document.getElementById('bg-dynamic');
+        if (dynCheck) {
+            dynCheck.checked = AppState.bgDynamic;
+            dynCheck.addEventListener('change', e => { AppState.bgDynamic = e.target.checked; });
         }
 
         // Grid size
         const gridSlider = document.getElementById('grid-size');
-        const gridValue = document.getElementById('grid-size-value');
+        const gridVal = document.getElementById('grid-size-value');
         if (gridSlider) {
             gridSlider.value = AppState.gridSize;
-            gridSlider.addEventListener('input', (e) => {
+            gridSlider.addEventListener('input', e => {
                 AppState.gridSize = parseInt(e.target.value);
-                if (gridValue) gridValue.textContent = e.target.value + 'px';
+                if (gridVal) gridVal.textContent = e.target.value + 'px';
             });
+        }
+    },
+
+    _bindRightClick() {
+        const sel = document.getElementById('right-click-select');
+        if (sel) {
+            sel.value = AppState.rightClickTool;
+            sel.addEventListener('change', e => { AppState.rightClickTool = e.target.value; });
         }
     }
 };

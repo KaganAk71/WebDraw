@@ -1,42 +1,26 @@
 // ──────────────────────────────────────────────────────────────────────
 // ThemeManager  (js/theme.js)
 // ──────────────────────────────────────────────────────────────────────
-
 import AppState from './state.js';
 
 const ThemeManager = {
     init() {
-        // Detect system preference
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const saved = localStorage.getItem('wd-theme');
         AppState.theme = saved || (prefersDark ? 'dark' : 'light');
-
         this.apply(AppState.theme);
 
-        AppState.subscribe('theme', (theme) => {
-            this.apply(theme);
-            localStorage.setItem('wd-theme', theme);
+        AppState.subscribe('theme', t => { this.apply(t); localStorage.setItem('wd-theme', t); });
+
+        document.getElementById('theme-toggle')?.addEventListener('click', () => {
+            AppState.theme = AppState.theme === 'dark' ? 'light' : 'dark';
         });
 
-        // Toggle button
-        const toggleBtn = document.getElementById('theme-toggle');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                AppState.theme = AppState.theme === 'dark' ? 'light' : 'dark';
-            });
-        }
-
-        // System preference change
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (!localStorage.getItem('wd-theme')) {
-                AppState.theme = e.matches ? 'dark' : 'light';
-            }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (!localStorage.getItem('wd-theme')) AppState.theme = e.matches ? 'dark' : 'light';
         });
     },
-
-    apply(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-    }
+    apply(t) { document.documentElement.setAttribute('data-theme', t); }
 };
 
 export default ThemeManager;
