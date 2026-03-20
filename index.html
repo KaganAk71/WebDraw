@@ -2,14 +2,29 @@
 <html lang="en" data-theme="dark">
 
 <head>
+    <meta name="google-site-verification" content="cwTNO9ZvIvVWsTLYWMc9AVs-VEe3xCxpb599Wtyr4mQ" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- SEO ve Meta Etiketleri -->
     <meta name="description"
-        content="Web Draw — Professional browser-based drawing, annotation and sketching tool. Draw on any website with multiple pen types, shapes, text, and more.">
+        content="Web Draw — Profesyonel, tarayıcı tabanlı çizim ve illüstrasyon aracı. Tüm web siteleri üzerinde çizim yapın, not alın, PDF açın ve tasarımınızı dışa aktarın. Sonsuz tuval, ekran paylaşımı ve dolma kalem özellikleri.">
+    <meta name="keywords"
+        content="web draw, drawing app, online canvas, tarayıcı çizim uygulaması, sonsuz tuval, browser drawing, annotation, pdf drawing">
+    <meta name="author" content="KaganAk71">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kaganak71.github.io/WebDraw/">
+
+    <!-- Open Graph / Sosyal Medya -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kaganak71.github.io/WebDraw/">
+    <meta property="og:title" content="Web Draw — Browser Drawing Engine">
+    <meta property="og:description"
+        content="Ücretsiz, tarayıcı tabanlı profesyonel çizim ve not alma uygulaması. Sonsuz tuval ve gelişmiş fırça efektleri ile yaratıcılığınızı konuşturun.">
+    <meta property="og:image" content="https://kaganak71.github.io/WebDraw/favicon.ico">
+
     <title>Web Draw — Browser Drawing Engine</title>
     <link rel="stylesheet" href="index.css">
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 
 <body>
@@ -20,13 +35,8 @@
     <header class="header" id="app-header">
         <div class="header__brand">
             <div class="header__logo">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
-                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
-                    <path d="M2 2l7.586 7.586" />
-                    <circle cx="11" cy="11" r="2" />
-                </svg>
+                <img src="favicon.ico" alt="Web Draw Logo" width="18" height="18"
+                    style="border-radius: 4px; object-fit: cover;">
             </div>
             <span class="header__title" data-i18n="appName">Web Draw</span>
         </div>
@@ -34,10 +44,16 @@
         <div class="header__center">
             <div class="undo-controls" style="display:flex; gap:8px; margin-right: 12px;">
                 <button class="zoom-btn" id="btn-undo" title="Undo (Ctrl+Z)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l4-4m-4 4l4 4M3 9h12a5 5 0 010 10h-2"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round">
+                        <path d="M3 9l4-4m-4 4l4 4M3 9h12a5 5 0 010 10h-2" />
+                    </svg>
                 </button>
                 <button class="zoom-btn" id="btn-redo" title="Redo (Ctrl+Y)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 9l-4-4m4 4l-4 4M21 9H9a5 5 0 000 10h2"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round">
+                        <path d="M21 9l-4-4m4 4l-4 4M21 9H9a5 5 0 000 10h2" />
+                    </svg>
                 </button>
             </div>
             <!-- Zoom Controls -->
@@ -73,9 +89,22 @@
      ═══════════════════════════════════════════════════════════════════ -->
     <nav class="sidebar sidebar--left" id="sidebar">
         <style>
-            .tool-btn { flex-direction: column; gap: 2px; height: 46px !important; }
-            .tool-lbl { font-size: 8px; font-weight: 600; text-transform: uppercase; }
-            .tool-btn svg { width: 16px !important; height: 16px !important; }
+            .tool-btn {
+                flex-direction: column;
+                gap: 2px;
+                height: 46px !important;
+            }
+
+            .tool-lbl {
+                font-size: 8px;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+
+            .tool-btn svg {
+                width: 16px !important;
+                height: 16px !important;
+            }
         </style>
         <!-- Hand / Pan -->
         <button class="tool-btn active" data-tool="hand" data-tooltip="Hand (Pan)" id="tool-hand">
@@ -101,8 +130,7 @@
         </button>
 
         <!-- Eraser -->
-        <button class="tool-btn" data-tool="eraser" data-tooltip="Eraser"
-            id="tool-eraser">
+        <button class="tool-btn" data-tool="eraser" data-tooltip="Eraser" id="tool-eraser">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" />
                 <path d="M22 21H7" />
@@ -112,8 +140,7 @@
         </button>
 
         <!-- Blur -->
-        <button class="tool-btn" data-tool="blur" data-tooltip="Blur"
-            id="tool-blur">
+        <button class="tool-btn" data-tool="blur" data-tooltip="Blur" id="tool-blur">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
@@ -136,8 +163,7 @@
         </button>
 
         <!-- Shapes -->
-        <button class="tool-btn" data-tool="shape" data-tooltip="Shapes"
-            id="tool-shape">
+        <button class="tool-btn" data-tool="shape" data-tooltip="Shapes" id="tool-shape">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                 stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -150,7 +176,8 @@
 
         <!-- Select -->
         <button class="tool-btn" data-tool="select" data-tooltip="Select" id="tool-select">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                stroke-dasharray="3 3">
                 <rect x="3" y="3" width="18" height="18" />
             </svg>
             <span class="tool-lbl" data-i18n="tools.lblSelect">Select</span>
@@ -158,13 +185,16 @@
 
         <!-- Share Screen -->
         <button class="tool-btn" data-tool="screenShare" data-tooltip="Share Screen" id="tool-screen">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
             <span class="tool-lbl" data-i18n="tools.lblShare">Share</span>
         </button>
 
         <!-- Interact Toggle -->
-        <button class="tool-btn" data-tool="interact" data-tooltip="Interact Mode"
-            id="tool-interact">
+        <button class="tool-btn" data-tool="interact" data-tooltip="Interact Mode" id="tool-interact">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M15 15l-2 5L9 9l11 4-5 2z" />
                 <path d="M2 2l7.586 7.586" />
@@ -175,8 +205,7 @@
         <div class="sidebar__div"></div>
 
         <!-- Settings -->
-        <button class="tool-btn" data-tool="settings" data-tooltip="Settings"
-            id="tool-settings">
+        <button class="tool-btn" data-tool="settings" data-tooltip="Settings" id="tool-settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <path
                     d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
@@ -196,7 +225,8 @@
     <main class="canvas-area" id="canvas-area">
         <div class="canvas-container" id="canvas-container">
             <canvas id="bg-canvas"></canvas>
-            <video id="screen-video" autoplay playsinline style="position:absolute;top:0;left:0;transform-origin:0 0;z-index:25 !important;display:none;pointer-events:none;"></video>
+            <video id="screen-video" autoplay playsinline
+                style="position:absolute;top:0;left:0;transform-origin:0 0;z-index:25 !important;display:none;pointer-events:none;"></video>
             <canvas id="draw-canvas"></canvas>
         </div>
     </main>
@@ -205,7 +235,8 @@
      TEXT INPUT OVERLAY
      ═══════════════════════════════════════════════════════════════════ -->
     <div class="text-overlay" id="text-overlay">
-        <textarea rows="1" cols="20" spellcheck="false" style="resize: both; overflow: hidden; min-width: 100px; min-height: 40px; border: 1px dashed var(--acc); padding: 4px;"></textarea>
+        <textarea rows="1" cols="20" spellcheck="false"
+            style="resize: both; overflow: hidden; min-width: 100px; min-height: 40px; border: 1px dashed var(--acc); padding: 4px;"></textarea>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════════
@@ -227,9 +258,13 @@
         <div class="s-section">
             <div class="s-section__title" data-i18n="settings.canvasSize">Canvas Size</div>
             <div class="s-row">
-                <input type="number" id="doc-width" placeholder="W" style="width:64px; background:var(--surface-s); border:1px solid var(--bd); color:var(--tx1); border-radius:4px; padding:4px;"> <span>x</span>
-                <input type="number" id="doc-height" placeholder="H" style="width:64px; background:var(--surface-s); border:1px solid var(--bd); color:var(--tx1); border-radius:4px; padding:4px;">
-                <button id="doc-inf-btn" class="btn btn--ghost" style="padding:4px 8px; font-size:10px;">Infinite</button>
+                <input type="number" id="doc-width" placeholder="W"
+                    style="width:64px; background:var(--surface-s); border:1px solid var(--bd); color:var(--tx1); border-radius:4px; padding:4px;">
+                <span>x</span>
+                <input type="number" id="doc-height" placeholder="H"
+                    style="width:64px; background:var(--surface-s); border:1px solid var(--bd); color:var(--tx1); border-radius:4px; padding:4px;">
+                <button id="doc-inf-btn" class="btn btn--ghost"
+                    style="padding:4px 8px; font-size:10px;">Infinite</button>
             </div>
         </div>
 
@@ -298,11 +333,13 @@
         <div class="s-section">
             <div class="s-row" style="margin-top:8px">
                 <span class="s-row__label" data-i18n="settings.bgColor">Arka Plan Rengi</span>
-                <div class="color-swatch" style="width:28px;height:28px"><input type="color" id="bg-color" value="#1c1c1e"></div>
+                <div class="color-swatch" style="width:28px;height:28px"><input type="color" id="bg-color"
+                        value="#1c1c1e"></div>
             </div>
             <div class="s-row">
                 <span class="s-row__label" data-i18n="settings.gridColor">Izgara/Nokta Rengi</span>
-                <div class="color-swatch" style="width:28px;height:28px"><input type="color" id="grid-color" value="#444444"></div>
+                <div class="color-swatch" style="width:28px;height:28px"><input type="color" id="grid-color"
+                        value="#444444"></div>
             </div>
         </div>
 
@@ -310,8 +347,10 @@
         <div class="s-section">
             <div class="s-section__title" data-i18n="settings.gridSize">Izgara Aralığı</div>
             <div class="s-row">
-                <input type="number" id="grid-size" value="24" style="width: 80px; flex:1; background:var(--surface-s); border:1px solid var(--bd); color:var(--tx1); border-radius:4px; padding:4px;">
-                <select id="grid-unit" style="background:var(--surface-s); border:1px solid var(--bd); color:var(--tx1); border-radius:4px; padding:4px;">
+                <input type="number" id="grid-size" value="24"
+                    style="width: 80px; flex:1; background:var(--surface-s); border:1px solid var(--bd); color:var(--tx1); border-radius:4px; padding:4px;">
+                <select id="grid-unit"
+                    style="background:var(--surface-s); border:1px solid var(--bd); color:var(--tx1); border-radius:4px; padding:4px;">
                     <option value="px">px</option>
                     <option value="cm">cm</option>
                     <option value="in">inc</option>
