@@ -14,9 +14,43 @@ const SettingsPanel = {
         });
 
         this._bindSidebarPosition();
-        this._bindProMode();
+        this._bindCanvasSize();
         this._bindBackground();
         this._bindRightClick();
+    },
+
+    _bindCanvasSize() {
+        const dW = document.getElementById('doc-width');
+        const dH = document.getElementById('doc-height');
+        const dI = document.getElementById('doc-inf-btn');
+
+        if (dW) {
+            dW.value = AppState.docWidth || '';
+            dW.addEventListener('change', e => { 
+                AppState.docWidth = parseInt(e.target.value) || 0; 
+                if (AppState.docWidth) AppState.viewX = -window.innerWidth / 2 + AppState.docWidth / 2;
+                import('./canvas.js').then(m => m.default.renderViewport());
+            });
+        }
+        if (dH) {
+            dH.value = AppState.docHeight || '';
+            dH.addEventListener('change', e => { 
+                AppState.docHeight = parseInt(e.target.value) || 0; 
+                if (AppState.docHeight) AppState.viewY = -100; // slightly above top
+                import('./canvas.js').then(m => m.default.renderViewport());
+            });
+        }
+        if (dI) {
+            dI.addEventListener('click', () => {
+                AppState.docWidth = 0; AppState.docHeight = 0;
+                if (dW) dW.value = '';
+                if (dH) dH.value = '';
+                import('./canvas.js').then(m => m.default.resetView());
+            });
+        }
+        
+        AppState.subscribe('docWidth', w => { if (dW) dW.value = w || ''; });
+        AppState.subscribe('docHeight', h => { if (dH) dH.value = h || ''; });
     },
 
     _bindSidebarPosition() {
@@ -47,27 +81,6 @@ const SettingsPanel = {
         });
     },
 
-    _bindProMode() {
-        document.querySelectorAll('[data-mode-opt]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const isPro = btn.dataset.modeOpt === 'pro';
-                AppState.proMode = isPro;
-                document.body.classList.toggle('pro-mode', isPro);
-                document.querySelectorAll('[data-mode-opt]').forEach(b => {
-                    b.classList.toggle('active', b.dataset.modeOpt === btn.dataset.modeOpt);
-                });
-            });
-        });
-        // Init
-        document.body.classList.toggle('pro-mode', AppState.proMode);
-        document.querySelectorAll('[data-mode-opt]').forEach(b => {
-            b.classList.toggle('active',
-                (b.dataset.modeOpt === 'pro' && AppState.proMode) ||
-                (b.dataset.modeOpt === 'simple' && !AppState.proMode)
-            );
-        });
-    },
-
     _bindBackground() {
         // BG type buttons
         document.querySelectorAll('[data-bg-type]').forEach(btn => {
@@ -79,36 +92,39 @@ const SettingsPanel = {
             btn.classList.toggle('active', btn.dataset.bgType === AppState.bgType);
         });
 
-        // BG color (light)
+        // BG color
         const bgPicker = document.getElementById('bg-color');
         if (bgPicker) {
             bgPicker.value = AppState.bgColor;
             bgPicker.addEventListener('input', e => { AppState.bgColor = e.target.value; });
+            AppState.subscribe('bgColor', c => bgPicker.value = c);
         }
 
-        // BG color (dark)
-        const bgDarkPicker = document.getElementById('bg-dark-color');
-        if (bgDarkPicker) {
-            bgDarkPicker.value = AppState.bgDarkColor;
-            bgDarkPicker.addEventListener('input', e => { AppState.bgDarkColor = e.target.value; });
+        // Grid color
+        const gridPicker = document.getElementById('grid-color');
+        if (gridPicker) {
+            gridPicker.value = AppState.gridColor;
+            gridPicker.addEventListener('input', e => { AppState.gridColor = e.target.value; });
+            AppState.subscribe('gridColor', c => gridPicker.value = c);
         }
 
-        // Dynamic toggle
-        const dynCheck = document.getElementById('bg-dynamic');
-        if (dynCheck) {
-            dynCheck.checked = AppState.bgDynamic;
-            dynCheck.addEventListener('change', e => { AppState.bgDynamic = e.target.checked; });
-        }
-
-        // Grid size
+        // Grid size & unit
         const gridSlider = document.getElementById('grid-size');
-        const gridVal = document.getElementById('grid-size-value');
+        const gridUnit = document.getElementById('grid-unit');
+        
         if (gridSlider) {
             gridSlider.value = AppState.gridSize;
             gridSlider.addEventListener('input', e => {
                 AppState.gridSize = parseInt(e.target.value);
-                if (gridVal) gridVal.textContent = e.target.value + 'px';
             });
+            AppState.subscribe('gridSize', v => { if(gridSlider.value != v) gridSlider.value = v; });
+        }
+        if (gridUnit) {
+            gridUnit.value = AppState.gridUnit;
+            gridUnit.addEventListener('change', e => {
+                AppState.gridUnit = e.target.value;
+            });
+            AppState.subscribe('gridUnit', v => { if(gridUnit.value != v) gridUnit.value = v; });
         }
     },
 

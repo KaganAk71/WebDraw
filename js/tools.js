@@ -49,33 +49,103 @@ const BallpointTool = {
 };
 
 const FountainTool = {
-    drawing: false, lx: 0, ly: 0, lt: 0,
+    drawing: false, pts: [],
+    brushAngle: -Math.PI / 4, // 45 degrees
+    lastTime: 0,
+
     onPointerDown(e) {
         CanvasEngine.saveState();
         this.drawing = true;
-        const p = getCoords(e); this.lx = p.x; this.ly = p.y; this.lt = Date.now();
+        const p = getCoords(e);
+        this.pts = [{ x: p.x, y: p.y, velocity: 0 }];
+        this.lastTime = performance.now();
     },
+
     onPointerMove(e) {
         if (!this.drawing) return;
-        const cfg = ToolConfig.get('fountain');
         const p = getCoords(e);
-        const now = Date.now();
-        const dist = Math.hypot(p.x - this.lx, p.y - this.ly);
-        const dt = Math.max(1, now - this.lt);
-        const speed = dist / dt;
-        const width = Math.max(cfg.size * 0.4, cfg.size * (1.6 - speed * 0.8));
+        const t = performance.now();
+        const dt = Math.max(1, t - this.lastTime);
+        this.lastTime = t;
 
-        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, width), (ctx) => {
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.globalAlpha = cfg.opacity / 100;
-            ctx.strokeStyle = cfg.color;
-            ctx.lineWidth = width;
-            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
-        });
-        this.lx = p.x; this.ly = p.y; this.lt = now;
+        const lastP = this.pts[this.pts.length - 1];
+        const dist = Math.hypot(p.x - lastP.x, p.y - lastP.y);
+        if (dist < 0.5) return;
+
+        // velocity: pixels per millisecond
+        const velocity = dist / dt;
+        this.pts.push({ x: p.x, y: p.y, velocity });
+
+        if (this.pts.length >= 3) {
+            const p0 = this.pts[this.pts.length - 3];
+            const p1 = this.pts[this.pts.length - 2];
+            const p2 = this.pts[this.pts.length - 1];
+
+            // Quadratic curve midpoints
+            const mid1 = { x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2 };
+            const mid2 = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+            
+            const cfg = ToolConfig.get('fountain');
+            const baseWidth = Math.max(2, cfg.size * 2);
+
+            const bounds = getBounds(mid1.x, mid1.y, mid2.x, mid2.y, baseWidth * 2);
+            bounds.minX = Math.min(bounds.minX, p1.x); bounds.maxX = Math.max(bounds.maxX, p1.x);
+            bounds.minY = Math.min(bounds.minY, p1.y); bounds.maxY = Math.max(bounds.maxY, p1.y);
+
+            CanvasEngine.executeOnChunks(bounds, (ctx) => {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.fillStyle = cfg.color;
+
+                const flatnessFactor = 0.25; // Chisel tip height ratio
+                const v1 = p0.velocity;
+                const v2 = p2.velocity;
+                
+                // Stamp distance ~0.5px for smooth continuous line
+                const steps = Math.max(5, Math.ceil(dist * 2)); 
+
+                for (let i = 0; i <= steps; i++) {
+                    const tVal = i / steps;
+                    const u = 1 - tVal;
+
+                    let sx = u * u * mid1.x + 2 * u * tVal * p1.x + tVal * tVal * mid2.x;
+                    let sy = u * u * mid1.y + 2 * u * tVal * p1.y + tVal * tVal * mid2.y;
+
+                    const interpV = u * v1 + tVal * v2;
+                    // Pressure (clamp 1/velocity mapping):
+                    let pressure = Math.min(1.8, Math.max(0.3, 0.4 / (interpV + 0.1)));
+
+                    // Initial pooling / blob
+                    let flow = 1.0;
+                    if (this.pts.length < 8) flow = 1.0 + (8 - this.pts.length) * 0.15;
+
+                    const w = baseWidth * pressure * flow;
+                    const h = w * flatnessFactor;
+
+                    // Paper jitter
+                    sx += (Math.random() - 0.5) * 0.3;
+                    sy += (Math.random() - 0.5) * 0.3;
+
+                    ctx.save();
+                    ctx.translate(sx, sy);
+                    ctx.rotate(this.brushAngle);
+
+                    const baseAlpha = cfg.opacity / 100;
+                    
+                    // Outer feather
+                    ctx.globalAlpha = baseAlpha * (0.6 + Math.random() * 0.2);
+                    ctx.fillRect(-w/2 * 1.15, -h/2 * 1.15, w * 1.15, h * 1.15);
+                    
+                    // Inner core
+                    ctx.globalAlpha = baseAlpha;
+                    ctx.fillRect(-w/2, -h/2, w, h);
+                    
+                    ctx.restore();
+                }
+            });
+        }
     },
-    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
+    
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; this.pts = []; } }
 };
 
 const PencilTool = {
@@ -109,28 +179,43 @@ const PencilTool = {
 };
 
 const MarkerTool = {
-    drawing: false, lx: 0, ly: 0,
+    drawing: false, pts: [],
     onPointerDown(e) {
         CanvasEngine.saveState();
         this.drawing = true;
-        const p = getCoords(e); this.lx = p.x; this.ly = p.y;
+        this.pts = [getCoords(e)];
     },
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('marker');
         const p = getCoords(e);
+        this.pts.push(p);
+
+        CanvasEngine.restoreToActiveCommand(); // wipes intermediate overlapping dashes
         
-        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, cfg.size), (ctx) => {
+        let minX = this.pts[0].x, minY = this.pts[0].y, maxX = minX, maxY = minY;
+        for (const pt of this.pts) {
+            if (pt.x < minX) minX = pt.x;
+            if (pt.x > maxX) maxX = pt.x;
+            if (pt.y < minY) minY = pt.y;
+            if (pt.y > maxY) maxY = pt.y;
+        }
+        
+        CanvasEngine.executeOnChunks(getBounds(minX, minY, maxX, maxY, cfg.size), (ctx) => {
             ctx.globalCompositeOperation = 'source-over';
             ctx.globalAlpha = cfg.opacity / 100;
             ctx.strokeStyle = cfg.color;
             ctx.lineWidth = cfg.size;
-            ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
-            ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); 
+            ctx.moveTo(this.pts[0].x, this.pts[0].y);
+            for(let i=1; i<this.pts.length; i++) {
+                ctx.lineTo(this.pts[i].x, this.pts[i].y);
+            }
+            ctx.stroke();
         });
-        this.lx = p.x; this.ly = p.y;
     },
-    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; this.pts = []; } }
 };
 
 const WatercolorTool = {

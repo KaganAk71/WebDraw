@@ -12,7 +12,7 @@ const BackgroundRenderer = {
         this.resize();
         this.render();
         window.addEventListener('resize', () => { this.resize(); this.render(); });
-        ['bgType', 'bgColor', 'bgDarkColor', 'bgDynamic', 'gridSize', 'theme', 'viewX', 'viewY', 'viewScale'].forEach(
+        ['bgType', 'bgColor', 'gridColor', 'gridSize', 'gridUnit', 'theme', 'viewX', 'viewY', 'viewScale', 'docWidth', 'docHeight'].forEach(
             k => AppState.subscribe(k, () => this.render())
         );
     },
@@ -26,24 +26,59 @@ const BackgroundRenderer = {
         this.canvas.style.height = h + 'px';
     },
 
+    _getGridSizeInPx() {
+        const val = AppState.gridSize || 24;
+        const u = AppState.gridUnit || 'px';
+        if (u === 'cm') return val * 37.7952755;
+        if (u === 'in') return val * 96;
+        return val;
+    },
+
     render() {
         const dpr = window.devicePixelRatio || 1;
         const w = window.innerWidth * dpr, h = window.innerHeight * dpr;
         const ctx = this.ctx;
         const type = AppState.bgType;
         const scale = AppState.viewScale;
-        const gs = AppState.gridSize * scale * dpr;
+        
+        const baseGridSize = this._getGridSizeInPx();
+        const gs = baseGridSize * scale * dpr;
         const isDark = AppState.theme === 'dark';
         
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        // Background color
-        let bg = AppState.bgDynamic ? (isDark ? AppState.bgDarkColor : AppState.bgColor) : AppState.bgColor;
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, w, h);
+        let bg = AppState.bgColor;
+        let wsBg = isDark ? '#0f0f11' : '#f0f0f5';
 
-        const gridC = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.08)';
-        const dotC = isDark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.12)';
+        if (AppState.docWidth > 0 && AppState.docHeight > 0) {
+            ctx.fillStyle = wsBg;
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.save();
+            ctx.translate(-AppState.viewX * scale * dpr, -AppState.viewY * scale * dpr);
+            
+            ctx.shadowColor = isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.15)';
+            ctx.shadowBlur = 12 * scale;
+            ctx.shadowOffsetX = 2 * scale;
+            ctx.shadowOffsetY = 4 * scale;
+            
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, AppState.docWidth * scale * dpr, AppState.docHeight * scale * dpr);
+            ctx.restore();
+
+            // Clip grid to document
+            ctx.save();
+            ctx.translate(-AppState.viewX * scale * dpr, -AppState.viewY * scale * dpr);
+            ctx.beginPath();
+            ctx.rect(0, 0, AppState.docWidth * scale * dpr, AppState.docHeight * scale * dpr);
+            ctx.clip();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        } else {
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, w, h);
+        }
+
+        const patternColor = AppState.gridColor;
 
         if (type === 'solid' || gs < 4) return; // Hide pattern if zoomed too far out
 
@@ -52,9 +87,13 @@ const BackgroundRenderer = {
         if (offsetX > 0) offsetX -= gs;
         if (offsetY > 0) offsetY -= gs;
 
-        if (type === 'dots') this._dots(w, h, gs, dotC, offsetX, offsetY, scale * dpr);
-        else if (type === 'lines') this._lines(w, h, gs, gridC, offsetY);
-        else if (type === 'grid') this._grid(w, h, gs, gridC, offsetX, offsetY);
+        if (type === 'dots') this._dots(w, h, gs, patternColor, offsetX, offsetY, scale * dpr);
+        else if (type === 'lines') this._lines(w, h, gs, patternColor, offsetY);
+        else if (type === 'grid') this._grid(w, h, gs, patternColor, offsetX, offsetY);
+
+        if (AppState.docWidth > 0 && AppState.docHeight > 0) {
+            ctx.restore();
+        }
     },
 
     _dots(w, h, s, c, ox, oy, scaleFactor) {

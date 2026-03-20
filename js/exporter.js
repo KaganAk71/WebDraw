@@ -85,10 +85,10 @@ const Exporter = {
     },
 
     clearCanvas() {
-        if (confirm(I18n.t('settings.clearConfirm'))) {
-            CanvasEngine.clear();
-            showToast(I18n.t('toast.canvasCleared'));
-        }
+        import('./canvas.js').then(m => {
+             m.default.clear();
+             showToast(I18n.t('toast.canvasCleared'));
+        });
     }
 };
 

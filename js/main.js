@@ -10,6 +10,7 @@ import ToolManager from './tools.js';
 import ToolPopup from './popup.js';
 import ShapeTool from './shapes.js';
 import TextTool from './text.js';
+import SelectTool from './select.js';
 import UrlOverlay from './overlay.js';
 import SettingsPanel from './settings.js';
 import Exporter from './exporter.js';
@@ -32,16 +33,19 @@ async function boot() {
     ToolPopup.init();
     ShapeTool.init();
     TextTool.init();
+    SelectTool.init();
 
     // 5. Panels & features
     UrlOverlay.init();
     SettingsPanel.init();
     Exporter.init();
 
-    // 6. Zoom buttons
+    // 6. Header buttons
     document.getElementById('zoom-in')?.addEventListener('click', () => CanvasEngine.zoomIn());
     document.getElementById('zoom-out')?.addEventListener('click', () => CanvasEngine.zoomOut());
     document.getElementById('zoom-badge')?.addEventListener('click', () => CanvasEngine.resetView());
+    document.getElementById('btn-undo')?.addEventListener('click', () => { if (CanvasEngine.undo()) showToast(I18n.t('toast.undone') || 'Undone'); });
+    document.getElementById('btn-redo')?.addEventListener('click', () => { if (CanvasEngine.redo()) showToast(I18n.t('toast.redone') || 'Redone'); });
 
     // 7. Keyboard shortcuts
     _initShortcuts();

@@ -5,11 +5,21 @@
         "pen": "Pen",
         "eraser": "Eraser",
         "blur": "Blur",
-        "text": "Text",
+        "text": "Text Tool",
         "shape": "Shapes",
         "urlOverlay": "Browse Site",
         "interact": "Interact Mode",
-        "settings": "Settings"
+        "settings": "Settings",
+        "lblPan": "Pan",
+        "lblPen": "Pen",
+        "lblEraser": "Eraser",
+        "lblBlur": "Blur",
+        "lblText": "Text",
+        "lblShape": "Shape",
+        "lblShare": "Share",
+        "lblSelect": "Select",
+        "lblMouse": "Mouse",
+        "lblConfig": "Config"
     },
     "penTypes": {
         "ballpoint": "Ballpoint",

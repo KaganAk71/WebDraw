@@ -28,7 +28,7 @@ const I18n = {
     async load(lang) {
         if (cache[lang]) { this.strings = cache[lang]; return; }
         try {
-            const r = await fetch(`lang/${lang}.json`);
+            const r = await fetch(`lang/${lang}.json?v=${Date.now()}`);
             this.strings = await r.json();
             cache[lang] = this.strings;
         } catch (e) { console.warn('i18n load fail', lang, e); }

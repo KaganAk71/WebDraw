@@ -17,13 +17,13 @@ const defaults = {
     viewY: 0,
     viewScale: 1,
     bgType: 'dots',
-    bgColor: '#ffffff',
-    bgDarkColor: '#1c1c1e',
-    bgDynamic: true,
+    bgColor: '#1c1c1e',
+    gridColor: '#444444',
     gridSize: 24,
-    urlBarVisible: false,
-    urlOverlayVisible: false,
-    urlOverlaySrc: '',
+    gridUnit: 'px',
+    docWidth: 0,   // 0 = infinite
+    docHeight: 0,
+    screenShareActive: false,
     interactMode: false,
     rightClickTool: 'eraser',  // eraser|pan|none
 };
@@ -66,14 +66,14 @@ try {
     if (saved.proMode !== undefined) AppState.proMode = saved.proMode;
     if (saved.bgType) AppState.bgType = saved.bgType;
     if (saved.bgColor) AppState.bgColor = saved.bgColor;
-    if (saved.bgDarkColor) AppState.bgDarkColor = saved.bgDarkColor;
-    if (saved.bgDynamic !== undefined) AppState.bgDynamic = saved.bgDynamic;
+    if (saved.gridColor) AppState.gridColor = saved.gridColor;
     if (saved.gridSize) AppState.gridSize = saved.gridSize;
+    if (saved.gridUnit) AppState.gridUnit = saved.gridUnit;
     if (saved.rightClickTool) AppState.rightClickTool = saved.rightClickTool;
 } catch { }
 
 // Auto-save UI prefs
-const uiKeys = ['sidebarPosition', 'proMode', 'bgType', 'bgColor', 'bgDarkColor', 'bgDynamic', 'gridSize', 'rightClickTool'];
+const uiKeys = ['sidebarPosition', 'proMode', 'bgType', 'bgColor', 'gridColor', 'gridSize', 'gridUnit', 'rightClickTool'];
 uiKeys.forEach(k => {
     AppState.subscribe(k, () => {
         const prefs = {};

@@ -5,11 +5,21 @@
         "pen": "Kalem",
         "eraser": "Silgi",
         "blur": "Bulanıklaştır",
-        "text": "Metin",
+        "text": "Metin Aracı",
         "shape": "Şekiller",
         "urlOverlay": "Site Aç",
         "interact": "Etkileşim Modu",
-        "settings": "Ayarlar"
+        "settings": "Ayarlar",
+        "lblPan": "Kaydır",
+        "lblPen": "Kalem",
+        "lblEraser": "Silgi",
+        "lblBlur": "Blur",
+        "lblText": "Metin",
+        "lblShape": "Şekil",
+        "lblShare": "Ekran",
+        "lblSelect": "Seç",
+        "lblMouse": "İmleç",
+        "lblConfig": "Ayar"
     },
     "penTypes": {
         "ballpoint": "Tükenmez",

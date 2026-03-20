@@ -255,6 +255,12 @@ const CanvasEngine = {
         this.ctx.scale(dpr * AppState.viewScale, dpr * AppState.viewScale);
         this.ctx.translate(-AppState.viewX, -AppState.viewY);
 
+        if (AppState.docWidth > 0 && AppState.docHeight > 0) {
+            this.ctx.beginPath();
+            this.ctx.rect(0, 0, AppState.docWidth, AppState.docHeight);
+            this.ctx.clip();
+        }
+
         const minX = AppState.viewX;
         const minY = AppState.viewY;
         const maxX = minX + (vW / (dpr * AppState.viewScale));
@@ -275,11 +281,30 @@ const CanvasEngine = {
             }
         }
         this.ctx.restore();
+
+        const vid = document.getElementById('screen-video');
+        if (vid && vid.style.display !== 'none') {
+            const scale = AppState.viewScale;
+            // Translate the video container in pixel space, matching the world canvas panning.
+            vid.style.transform = `scale(${scale}) translate(${-AppState.viewX}px, ${-AppState.viewY}px)`;
+        }
     },
 
     /* ── Undo / Redo ────────────────────────────────────────────────── */
     saveState() {
         this.activeCommand = new DrawCommand();
+    },
+
+    restoreToActiveCommand() {
+        if (!this.activeCommand) return;
+        for (const [key, state] of this.activeCommand.chunkStates.entries()) {
+            const canvas = this.getChunk(state.cx, state.cy);
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.putImageData(state.imgData, 0, 0);
+            ctx.restore();
+        }
     },
 
     commitState() {
