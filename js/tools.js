@@ -1,24 +1,28 @@
 // ──────────────────────────────────────────────────────────────────────
-// ToolManager + Pen Strategies  (js/tools.js)
-// Multiple pen types: ballpoint, fountain, pencil, marker, watercolor, crayon
-// Eraser, Blur with strength control, Hand/Pan tool
+// ToolManager + Pen Strategies  (js/tools.js)  — updated for chunks
 // ──────────────────────────────────────────────────────────────────────
 import AppState, { ToolConfig } from './state.js';
 import CanvasEngine from './canvas.js';
 
-/* ═══ Helper ═══ */
 function getCoords(e) {
     return CanvasEngine.screenToCanvas(e.clientX, e.clientY);
 }
 
-/* ═══ Hand (Pan) ═══ */
+function getBounds(x1, y1, x2, y2, padding) {
+    return {
+        minX: Math.min(x1, x2) - padding,
+        minY: Math.min(y1, y2) - padding,
+        maxX: Math.max(x1, x2) + padding,
+        maxY: Math.max(y1, y2) + padding
+    };
+}
+
 const HandTool = {
     onPointerDown(e) { CanvasEngine.startPan(e); },
     onPointerMove() { },
     onPointerUp() { }
 };
 
-/* ═══ Ballpoint Pen ═══ */
 const BallpointTool = {
     drawing: false, lx: 0, ly: 0,
     onPointerDown(e) {
@@ -29,21 +33,21 @@ const BallpointTool = {
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('ballpoint');
-        const ctx = CanvasEngine.getContext();
         const p = getCoords(e);
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = cfg.opacity / 100;
-        ctx.strokeStyle = cfg.color;
-        ctx.lineWidth = cfg.size;
-        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
-        ctx.globalAlpha = 1;
+        
+        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, cfg.size), (ctx) => {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = cfg.opacity / 100;
+            ctx.strokeStyle = cfg.color;
+            ctx.lineWidth = cfg.size;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+        });
         this.lx = p.x; this.ly = p.y;
     },
-    onPointerUp() { this.drawing = false; CanvasEngine.getContext().globalAlpha = 1; }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
 };
 
-/* ═══ Fountain Pen — speed-sensitive width ═══ */
 const FountainTool = {
     drawing: false, lx: 0, ly: 0, lt: 0,
     onPointerDown(e) {
@@ -54,7 +58,6 @@ const FountainTool = {
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('fountain');
-        const ctx = CanvasEngine.getContext();
         const p = getCoords(e);
         const now = Date.now();
         const dist = Math.hypot(p.x - this.lx, p.y - this.ly);
@@ -62,19 +65,19 @@ const FountainTool = {
         const speed = dist / dt;
         const width = Math.max(cfg.size * 0.4, cfg.size * (1.6 - speed * 0.8));
 
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = cfg.opacity / 100;
-        ctx.strokeStyle = cfg.color;
-        ctx.lineWidth = width;
-        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
-        ctx.globalAlpha = 1;
+        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, width), (ctx) => {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = cfg.opacity / 100;
+            ctx.strokeStyle = cfg.color;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+        });
         this.lx = p.x; this.ly = p.y; this.lt = now;
     },
-    onPointerUp() { this.drawing = false; CanvasEngine.getContext().globalAlpha = 1; }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
 };
 
-/* ═══ Pencil — textured, lighter ═══ */
 const PencilTool = {
     drawing: false, lx: 0, ly: 0,
     onPointerDown(e) {
@@ -85,27 +88,26 @@ const PencilTool = {
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('pencil');
-        const ctx = CanvasEngine.getContext();
         const p = getCoords(e);
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = (cfg.opacity / 100) * (0.6 + Math.random() * 0.4);
-        ctx.strokeStyle = cfg.color;
-        ctx.lineWidth = cfg.size + Math.random() * 0.5;
-        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
-        // slight texture via jitter
-        if (Math.random() > 0.5) {
-            ctx.fillStyle = cfg.color;
-            ctx.globalAlpha = (cfg.opacity / 100) * 0.3;
-            ctx.fillRect(p.x + (Math.random() - 0.5) * cfg.size, p.y + (Math.random() - 0.5) * cfg.size, 1, 1);
-        }
-        ctx.globalAlpha = 1;
+        
+        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, cfg.size + 1), (ctx) => {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = (cfg.opacity / 100) * (0.6 + Math.random() * 0.4);
+            ctx.strokeStyle = cfg.color;
+            ctx.lineWidth = cfg.size + Math.random() * 0.5;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+            if (Math.random() > 0.5) {
+                ctx.fillStyle = cfg.color;
+                ctx.globalAlpha = (cfg.opacity / 100) * 0.3;
+                ctx.fillRect(p.x + (Math.random() - 0.5) * cfg.size, p.y + (Math.random() - 0.5) * cfg.size, 1, 1);
+            }
+        });
         this.lx = p.x; this.ly = p.y;
     },
-    onPointerUp() { this.drawing = false; CanvasEngine.getContext().globalAlpha = 1; }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
 };
 
-/* ═══ Marker (Highlighter) — wide, semi-transparent, flat ═══ */
 const MarkerTool = {
     drawing: false, lx: 0, ly: 0,
     onPointerDown(e) {
@@ -116,21 +118,21 @@ const MarkerTool = {
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('marker');
-        const ctx = CanvasEngine.getContext();
         const p = getCoords(e);
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = cfg.opacity / 100;
-        ctx.strokeStyle = cfg.color;
-        ctx.lineWidth = cfg.size;
-        ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
-        ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
-        ctx.globalAlpha = 1;
+        
+        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, cfg.size), (ctx) => {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = cfg.opacity / 100;
+            ctx.strokeStyle = cfg.color;
+            ctx.lineWidth = cfg.size;
+            ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+            ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+        });
         this.lx = p.x; this.ly = p.y;
     },
-    onPointerUp() { this.drawing = false; CanvasEngine.getContext().globalAlpha = 1; }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
 };
 
-/* ═══ Watercolor — soft, blending ═══ */
 const WatercolorTool = {
     drawing: false, lx: 0, ly: 0,
     onPointerDown(e) {
@@ -141,28 +143,34 @@ const WatercolorTool = {
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('watercolor');
-        const ctx = CanvasEngine.getContext();
         const p = getCoords(e);
-        ctx.globalCompositeOperation = 'source-over';
-        for (let i = 0; i < 3; i++) {
-            ctx.globalAlpha = (cfg.opacity / 100) * (0.3 + Math.random() * 0.3);
-            ctx.strokeStyle = cfg.color;
-            ctx.lineWidth = cfg.size * (0.7 + Math.random() * 0.6);
-            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            const jx = (Math.random() - 0.5) * cfg.size * 0.3;
-            const jy = (Math.random() - 0.5) * cfg.size * 0.3;
-            ctx.beginPath();
-            ctx.moveTo(this.lx + jx, this.ly + jy);
-            ctx.lineTo(p.x + jx, p.y + jy);
-            ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
+        
+        const offsets = Array.from({length:3}, () => [
+            (Math.random() - 0.5) * cfg.size * 0.3, 
+            (Math.random() - 0.5) * cfg.size * 0.3,
+            cfg.size * (0.7 + Math.random() * 0.6),
+            (cfg.opacity / 100) * (0.3 + Math.random() * 0.3)
+        ]);
+        
+        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, cfg.size), (ctx) => {
+            ctx.globalCompositeOperation = 'source-over';
+            for (let i = 0; i < 3; i++) {
+                const [jx, jy, w, a] = offsets[i];
+                ctx.globalAlpha = a;
+                ctx.strokeStyle = cfg.color;
+                ctx.lineWidth = w;
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(this.lx + jx, this.ly + jy);
+                ctx.lineTo(p.x + jx, p.y + jy);
+                ctx.stroke();
+            }
+        });
         this.lx = p.x; this.ly = p.y;
     },
-    onPointerUp() { this.drawing = false; CanvasEngine.getContext().globalAlpha = 1; }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
 };
 
-/* ═══ Crayon — textured, rough ═══ */
 const CrayonTool = {
     drawing: false, lx: 0, ly: 0,
     onPointerDown(e) {
@@ -173,30 +181,38 @@ const CrayonTool = {
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('crayon');
-        const ctx = CanvasEngine.getContext();
         const p = getCoords(e);
-        ctx.globalCompositeOperation = 'source-over';
+        
         const dist = Math.hypot(p.x - this.lx, p.y - this.ly);
         const steps = Math.max(1, Math.floor(dist));
+        const dots = [];
         for (let i = 0; i < steps; i++) {
             const t = i / steps;
             const cx = this.lx + (p.x - this.lx) * t;
             const cy = this.ly + (p.y - this.ly) * t;
             for (let j = 0; j < 4; j++) {
-                const rx = cx + (Math.random() - 0.5) * cfg.size;
-                const ry = cy + (Math.random() - 0.5) * cfg.size;
-                ctx.globalAlpha = (cfg.opacity / 100) * (0.3 + Math.random() * 0.5);
-                ctx.fillStyle = cfg.color;
-                ctx.fillRect(rx, ry, 1 + Math.random(), 1 + Math.random());
+                dots.push([
+                    cx + (Math.random() - 0.5) * cfg.size,
+                    cy + (Math.random() - 0.5) * cfg.size,
+                    (cfg.opacity / 100) * (0.3 + Math.random() * 0.5),
+                    1 + Math.random(), 1 + Math.random()
+                ]);
             }
         }
-        ctx.globalAlpha = 1;
+        
+        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, cfg.size), (ctx) => {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = cfg.color;
+            for(const [rx, ry, alpha, w, h] of dots) {
+                ctx.globalAlpha = alpha;
+                ctx.fillRect(rx, ry, w, h);
+            }
+        });
         this.lx = p.x; this.ly = p.y;
     },
-    onPointerUp() { this.drawing = false; CanvasEngine.getContext().globalAlpha = 1; }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
 };
 
-/* ═══ Eraser ═══ */
 const EraserTool = {
     drawing: false, lx: 0, ly: 0,
     onPointerDown(e) {
@@ -207,23 +223,21 @@ const EraserTool = {
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('eraser');
-        const ctx = CanvasEngine.getContext();
         const p = getCoords(e);
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.globalAlpha = 1;
-        ctx.lineWidth = cfg.size;
-        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
-        ctx.globalCompositeOperation = 'source-over';
+        
+        CanvasEngine.executeOnChunks(getBounds(this.lx, this.ly, p.x, p.y, cfg.size), (ctx) => {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.globalAlpha = 1;
+            ctx.lineWidth = cfg.size;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(this.lx, this.ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+            ctx.globalCompositeOperation = 'source-over';
+        });
         this.lx = p.x; this.ly = p.y;
     },
-    onPointerUp() {
-        this.drawing = false;
-        CanvasEngine.getContext().globalCompositeOperation = 'source-over';
-    }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
 };
 
-/* ═══ Blur — fixed: uses temp canvas, strength control ═══ */
 const BlurTool = {
     drawing: false, lx: 0, ly: 0,
     onPointerDown(e) {
@@ -234,39 +248,46 @@ const BlurTool = {
     onPointerMove(e) {
         if (!this.drawing) return;
         const cfg = ToolConfig.get('blur');
-        const ctx = CanvasEngine.getContext();
-        const canvas = CanvasEngine.getCanvas();
         const p = getCoords(e);
         const size = cfg.size;
         const strength = cfg.strength || 3;
-        const dpr = window.devicePixelRatio || 1;
-        const sx = Math.max(0, Math.floor((p.x - size / 2) * dpr));
-        const sy = Math.max(0, Math.floor((p.y - size / 2) * dpr));
-        const sw = Math.min(canvas.width - sx, Math.floor(size * dpr));
-        const sh = Math.min(canvas.height - sy, Math.floor(size * dpr));
-        if (sw <= 0 || sh <= 0) return;
-
-        try {
-            // Read area into temp canvas, apply blur, write back
-            const tmp = document.createElement('canvas');
-            tmp.width = sw; tmp.height = sh;
-            const tc = tmp.getContext('2d');
-            tc.drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
-            // Clear original area
-            ctx.save();
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.clearRect(sx, sy, sw, sh);
-            ctx.filter = `blur(${strength}px)`;
-            ctx.drawImage(tmp, 0, 0, sw, sh, sx, sy, sw, sh);
-            ctx.filter = 'none';
-            ctx.restore();
-        } catch { }
+        
+        const bounds = { minX: p.x - size/2, minY: p.y - size/2, maxX: p.x + size/2, maxY: p.y + size/2 };
+        
+        CanvasEngine.executeOnChunks(bounds, (ctx, chunk, cx, cy) => {
+            const dpr = window.devicePixelRatio || 1;
+            const lx = (bounds.minX - cx * CanvasEngine.getChunkSize()) * dpr;
+            const ly = (bounds.minY - cy * CanvasEngine.getChunkSize()) * dpr;
+            const sw = size * dpr;
+            const sh = size * dpr;
+            
+            const sx = Math.max(0, Math.floor(lx));
+            const sy = Math.max(0, Math.floor(ly));
+            const ew = Math.min(chunk.width - sx, Math.ceil(sw - (sx - lx)));
+            const eh = Math.min(chunk.height - sy, Math.ceil(sh - (sy - ly)));
+            
+            if (ew <= 0 || eh <= 0) return;
+            
+            try {
+                const tmp = document.createElement('canvas');
+                tmp.width = ew; tmp.height = eh;
+                const tc = tmp.getContext('2d');
+                tc.drawImage(chunk, sx, sy, ew, eh, 0, 0, ew, eh);
+                
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.clearRect(sx, sy, ew, eh);
+                ctx.filter = `blur(${strength}px)`;
+                ctx.drawImage(tmp, 0, 0, ew, eh, sx, sy, ew, eh);
+                ctx.filter = 'none';
+                ctx.restore();
+            } catch { }
+        });
         this.lx = p.x; this.ly = p.y;
     },
-    onPointerUp() { this.drawing = false; }
+    onPointerUp() { if (this.drawing) { CanvasEngine.commitState(); this.drawing = false; } }
 };
 
-/* ═══ Pen type map ═════════════════════════════════════════════════ */
 const penTools = {
     ballpoint: BallpointTool,
     fountain: FountainTool,
@@ -276,7 +297,6 @@ const penTools = {
     crayon: CrayonTool,
 };
 
-/* ═══ ToolManager ═════════════════════════════════════════════════ */
 const ToolManager = {
     cursorPreview: null,
 
@@ -289,12 +309,10 @@ const ToolManager = {
         canvas.addEventListener('pointerup', e => this._onUp(e));
         canvas.addEventListener('pointerleave', e => this._onUp(e));
 
-        // Cursor preview
         canvas.addEventListener('pointermove', e => this._updateCursor(e));
         canvas.addEventListener('pointerenter', () => this.cursorPreview?.classList.add('visible'));
         canvas.addEventListener('pointerleave', () => this.cursorPreview?.classList.remove('visible'));
 
-        // Tool button clicks
         document.querySelectorAll('[data-tool]').forEach(btn => {
             btn.addEventListener('click', () => this._onToolBtnClick(btn.dataset.tool));
         });
@@ -310,15 +328,13 @@ const ToolManager = {
         if (t === 'pen') return penTools[AppState.penType] || BallpointTool;
         if (t === 'eraser') return EraserTool;
         if (t === 'blur') return BlurTool;
-        // text and shape handled by their own modules
         return null;
     },
 
     _onDown(e) {
-        if (e.button === 1) return; // middle handled by CanvasEngine
+        if (e.button === 1) return;
         if (AppState.interactMode) return;
-
-        // Right click → configurable tool
+        
         if (e.button === 2) {
             e.preventDefault();
             const rc = AppState.rightClickTool;
@@ -327,23 +343,16 @@ const ToolManager = {
             return;
         }
 
-        // Close popup when clicking canvas
-        if (AppState.toolPopupOpen) {
-            AppState.toolPopupOpen = null;
-        }
+        if (AppState.toolPopupOpen) AppState.toolPopupOpen = null;
 
         const tool = this._getActiveTool();
-        if (tool) {
-            e.preventDefault();
-            tool.onPointerDown(e);
-        }
+        if (tool) { e.preventDefault(); tool.onPointerDown(e); }
     },
 
     _onMove(e) {
         if (AppState.interactMode) return;
-        // right click tool movement
         if (this._rightClickActive) {
-            if (this._rightClickActive === 'pan') return; // handled by CanvasEngine
+            if (this._rightClickActive === 'pan') return;
             this._rightClickActive.onPointerMove(e);
             return;
         }
@@ -358,7 +367,7 @@ const ToolManager = {
             return;
         }
         const tool = this._getActiveTool();
-        if (tool) tool.onPointerUp(e);
+        if (tool && tool.onPointerUp) tool.onPointerUp(e);
     },
 
     _onToolBtnClick(toolName) {
@@ -367,26 +376,17 @@ const ToolManager = {
             AppState.toolPopupOpen = null;
             return;
         }
-        if (toolName === 'interact') {
-            AppState.interactMode = !AppState.interactMode;
-            return;
-        }
+        if (toolName === 'interact') { AppState.interactMode = !AppState.interactMode; return; }
         if (toolName === 'urlOverlay') {
             AppState.urlBarVisible = !AppState.urlBarVisible;
             AppState.toolPopupOpen = null;
             return;
         }
 
-        // For tools that have popups (pen, eraser, blur, text, shape)
         const popupTools = ['pen', 'eraser', 'blur', 'text', 'shape'];
         if (popupTools.includes(toolName)) {
-            if (AppState.activeTool === toolName) {
-                // Toggle popup
-                AppState.toolPopupOpen = AppState.toolPopupOpen === toolName ? null : toolName;
-            } else {
-                AppState.activeTool = toolName;
-                AppState.toolPopupOpen = toolName;
-            }
+            if (AppState.activeTool === toolName) AppState.toolPopupOpen = AppState.toolPopupOpen === toolName ? null : toolName;
+            else { AppState.activeTool = toolName; AppState.toolPopupOpen = toolName; }
         } else {
             AppState.activeTool = toolName;
             AppState.toolPopupOpen = null;
@@ -396,46 +396,34 @@ const ToolManager = {
     _updateUI() {
         const tool = AppState.activeTool;
         const canvas = CanvasEngine.getCanvas();
-
-        // Update active button
         document.querySelectorAll('[data-tool]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tool === tool);
         });
-
-        // Cursor style
         canvas.classList.remove('tool-active', 'tool-text');
-        if (tool === 'hand') {
-            canvas.style.cursor = 'grab';
-        } else if (tool === 'text') {
-            canvas.classList.add('tool-text');
-        } else if (tool !== 'hand') {
-            canvas.classList.add('tool-active');
-        }
+        if (tool === 'hand') canvas.style.cursor = 'grab';
+        else if (tool === 'text') canvas.classList.add('tool-text');
+        else if (tool !== 'hand') canvas.classList.add('tool-active');
     },
 
     _updateCursor(e) {
         if (!this.cursorPreview) return;
         const tool = AppState.activeTool;
         let size = 2;
-        if (tool === 'pen') {
-            const cfg = ToolConfig.get(AppState.penType);
-            size = cfg.size;
-        } else if (tool === 'eraser') {
-            size = ToolConfig.get('eraser').size;
-        } else if (tool === 'blur') {
-            size = ToolConfig.get('blur').size;
-        } else {
-            this.cursorPreview.classList.remove('visible');
-            return;
-        }
+        if (tool === 'pen') size = ToolConfig.get(AppState.penType).size;
+        else if (tool === 'eraser') size = ToolConfig.get('eraser').size;
+        else if (tool === 'blur') size = ToolConfig.get('blur').size;
+        else { this.cursorPreview.classList.remove('visible'); return; }
 
-        this.cursorPreview.style.width = size + 'px';
-        this.cursorPreview.style.height = size + 'px';
-        this.cursorPreview.style.left = (e.clientX - size / 2) + 'px';
-        this.cursorPreview.style.top = (e.clientY - size / 2) + 'px';
+        // Scale the cursor based on zoom!
+        const dpr = window.devicePixelRatio || 1;
+        const scaledSize = size * AppState.viewScale;
+        
+        this.cursorPreview.style.width = scaledSize + 'px';
+        this.cursorPreview.style.height = scaledSize + 'px';
+        this.cursorPreview.style.left = (e.clientX - scaledSize / 2) + 'px';
+        this.cursorPreview.style.top = (e.clientY - scaledSize / 2) + 'px';
     },
 
-    // Right-click context menu prevention
     preventContextMenu() {
         CanvasEngine.getCanvas().addEventListener('contextmenu', e => e.preventDefault());
     }

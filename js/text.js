@@ -1,6 +1,5 @@
 // ──────────────────────────────────────────────────────────────────────
-// TextTool  (js/text.js)
-// Click to place text, type, then commit to canvas
+// TextTool  (js/text.js) — updated for chunks
 // ──────────────────────────────────────────────────────────────────────
 import AppState, { ToolConfig } from './state.js';
 import CanvasEngine from './canvas.js';
@@ -18,7 +17,6 @@ const TextTool = {
         const canvas = CanvasEngine.getCanvas();
         canvas.addEventListener('pointerdown', e => this._onCanvasClick(e));
 
-        // Commit on blur or Enter
         if (this.textarea) {
             this.textarea.addEventListener('blur', () => this._commit());
             this.textarea.addEventListener('keydown', e => {
@@ -26,7 +24,6 @@ const TextTool = {
                     e.preventDefault();
                     this._commit();
                 }
-                // Escape to cancel
                 if (e.key === 'Escape') {
                     this.textarea.value = '';
                     this._hide();
@@ -39,7 +36,6 @@ const TextTool = {
         if (AppState.activeTool !== 'text' || e.button !== 0) return;
         e.preventDefault();
 
-        // If already editing, commit first
         if (this.overlay?.classList.contains('active')) {
             this._commit();
             return;
@@ -50,14 +46,13 @@ const TextTool = {
         this.currentX = p.x;
         this.currentY = p.y;
 
-        // Position overlay
         this.overlay.style.left = e.clientX + 'px';
         this.overlay.style.top = e.clientY + 'px';
         this.overlay.classList.add('active');
 
-        // Style textarea
         this.textarea.style.fontFamily = cfg.fontFamily;
-        this.textarea.style.fontSize = cfg.fontSize + 'px';
+        // visual scaling
+        this.textarea.style.fontSize = (cfg.fontSize * AppState.viewScale) + 'px';
         this.textarea.style.color = cfg.color;
         this.textarea.style.fontWeight = cfg.bold ? '700' : '400';
         this.textarea.style.fontStyle = cfg.italic ? 'italic' : 'normal';
@@ -71,19 +66,26 @@ const TextTool = {
 
         CanvasEngine.saveState();
         const cfg = ToolConfig.get('text');
-        const ctx = CanvasEngine.getContext();
+        
+        // Approx text bounds logic
+        const boundsSize = 800; // conservative bound size
+        const bounds = {
+            minX: this.currentX, minY: this.currentY,
+            maxX: this.currentX + boundsSize, maxY: this.currentY + boundsSize/2
+        };
 
-        ctx.save();
-        ctx.font = `${cfg.italic ? 'italic ' : ''}${cfg.bold ? '700' : '400'} ${cfg.fontSize}px ${cfg.fontFamily}`;
-        ctx.fillStyle = cfg.color;
-        ctx.textBaseline = 'top';
+        CanvasEngine.executeOnChunks(bounds, (ctx) => {
+            ctx.font = `${cfg.italic ? 'italic ' : ''}${cfg.bold ? '700' : '400'} ${cfg.fontSize}px ${cfg.fontFamily}`;
+            ctx.fillStyle = cfg.color;
+            ctx.textBaseline = 'top';
 
-        // Multi-line support
-        const lines = text.split('\n');
-        lines.forEach((line, i) => {
-            ctx.fillText(line, this.currentX, this.currentY + i * (cfg.fontSize * 1.4));
+            const lines = text.split('\n');
+            lines.forEach((line, i) => {
+                ctx.fillText(line, this.currentX, this.currentY + i * (cfg.fontSize * 1.4));
+            });
         });
-        ctx.restore();
+
+        CanvasEngine.commitState();
         this._hide();
     },
 

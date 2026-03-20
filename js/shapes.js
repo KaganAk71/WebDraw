@@ -1,6 +1,5 @@
 // ──────────────────────────────────────────────────────────────────────
-// ShapeTool  (js/shapes.js)
-// Rectangle, Circle, Line, Arrow, Triangle, Star
+// ShapeTool  (js/shapes.js) — updated for chunks
 // ──────────────────────────────────────────────────────────────────────
 import AppState, { ToolConfig } from './state.js';
 import CanvasEngine from './canvas.js';
@@ -17,7 +16,6 @@ const ShapeTool = {
 
     init() {
         const canvas = CanvasEngine.getCanvas();
-        // Create preview overlay canvas
         this.previewCanvas = document.getElementById('shape-preview');
         if (!this.previewCanvas) {
             this.previewCanvas = document.createElement('canvas');
@@ -41,7 +39,7 @@ const ShapeTool = {
         this.previewCanvas.height = window.innerHeight * dpr;
         this.previewCanvas.style.width = window.innerWidth + 'px';
         this.previewCanvas.style.height = window.innerHeight + 'px';
-        this.previewCtx.scale(dpr, dpr);
+        this.previewCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     },
 
     onPointerDown(e) {
@@ -56,7 +54,14 @@ const ShapeTool = {
         if (!this.drawing || AppState.activeTool !== 'shape') return;
         const p = getCoords(e);
         this._clearPreview();
+        
+        // Transform the preview so we draw in screen space matching world space
+        const dpr = window.devicePixelRatio || 1;
+        this.previewCtx.save();
+        this.previewCtx.scale(AppState.viewScale, AppState.viewScale);
+        this.previewCtx.translate(-AppState.viewX, -AppState.viewY);
         this._drawShape(this.previewCtx, this.startX, this.startY, p.x, p.y);
+        this.previewCtx.restore();
     },
 
     onPointerUp(e) {
@@ -64,7 +69,17 @@ const ShapeTool = {
         this.drawing = false;
         this._clearPreview();
         const p = getCoords(e);
-        this._drawShape(CanvasEngine.getContext(), this.startX, this.startY, p.x, p.y);
+        
+        const pad = ToolConfig.get('shape').strokeWidth;
+        const bounds = {
+            minX: Math.min(this.startX, p.x) - pad, minY: Math.min(this.startY, p.y) - pad,
+            maxX: Math.max(this.startX, p.x) + pad, maxY: Math.max(this.startY, p.y) + pad,
+        };
+        
+        CanvasEngine.executeOnChunks(bounds, (ctx) => {
+            this._drawShape(ctx, this.startX, this.startY, p.x, p.y);
+        });
+        CanvasEngine.commitState();
     },
 
     _clearPreview() {
@@ -78,7 +93,6 @@ const ShapeTool = {
         const cfg = ToolConfig.get('shape');
         const type = AppState.shapeType;
 
-        ctx.save();
         ctx.strokeStyle = cfg.strokeColor;
         ctx.fillStyle = cfg.fillColor;
         ctx.lineWidth = cfg.strokeWidth;
@@ -86,33 +100,18 @@ const ShapeTool = {
         ctx.lineJoin = 'round';
 
         switch (type) {
-            case 'rectangle':
-                this._rect(ctx, x1, y1, x2, y2, cfg);
-                break;
-            case 'circle':
-                this._circle(ctx, x1, y1, x2, y2, cfg);
-                break;
-            case 'line':
-                this._line(ctx, x1, y1, x2, y2);
-                break;
-            case 'arrow':
-                this._arrow(ctx, x1, y1, x2, y2);
-                break;
-            case 'triangle':
-                this._triangle(ctx, x1, y1, x2, y2, cfg);
-                break;
-            case 'star':
-                this._star(ctx, x1, y1, x2, y2, cfg);
-                break;
+            case 'rectangle': this._rect(ctx, x1, y1, x2, y2, cfg); break;
+            case 'circle': this._circle(ctx, x1, y1, x2, y2, cfg); break;
+            case 'line': this._line(ctx, x1, y1, x2, y2); break;
+            case 'arrow': this._arrow(ctx, x1, y1, x2, y2); break;
+            case 'triangle': this._triangle(ctx, x1, y1, x2, y2, cfg); break;
+            case 'star': this._star(ctx, x1, y1, x2, y2, cfg); break;
         }
-        ctx.restore();
     },
 
     _rect(ctx, x1, y1, x2, y2, cfg) {
         const w = x2 - x1, h = y2 - y1;
-        if (cfg.fillColor && cfg.fillColor !== 'transparent') {
-            ctx.fillRect(x1, y1, w, h);
-        }
+        if (cfg.fillColor && cfg.fillColor !== 'transparent') ctx.fillRect(x1, y1, w, h);
         ctx.strokeRect(x1, y1, w, h);
     },
 
@@ -131,7 +130,6 @@ const ShapeTool = {
 
     _arrow(ctx, x1, y1, x2, y2) {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-        // Arrowhead
         const angle = Math.atan2(y2 - y1, x2 - x1);
         const headLen = Math.max(10, ctx.lineWidth * 4);
         ctx.beginPath();
@@ -145,10 +143,7 @@ const ShapeTool = {
     _triangle(ctx, x1, y1, x2, y2, cfg) {
         const mx = (x1 + x2) / 2;
         ctx.beginPath();
-        ctx.moveTo(mx, y1);
-        ctx.lineTo(x2, y2);
-        ctx.lineTo(x1, y2);
-        ctx.closePath();
+        ctx.moveTo(mx, y1); ctx.lineTo(x2, y2); ctx.lineTo(x1, y2); ctx.closePath();
         if (cfg.fillColor && cfg.fillColor !== 'transparent') ctx.fill();
         ctx.stroke();
     },
