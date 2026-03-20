@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎨 Web Draw — Browser Drawing Engine
+# Web Draw — Browser Drawing Engine
 
 <a href="#english">🇬🇧 English</a> | <a href="#türkçe">🇹🇷 Türkçe</a>
 
@@ -23,30 +23,30 @@
 
 **Web Draw** is a feature-rich, client-side drawing and annotation application built purely with HTML5 Canvas, Vanilla JavaScript, and CSS3. It features an infinite canvas, a premium Mac-style UI, multiple drawing tools, dynamic grid backgrounds, and much more.
 
-### 🌟 Features
+### Features
 - **Infinite Canvas:** Uses a heavily optimized chunked-raster memory architecture. Draw limitlessly without performance lags.
 - **Hardware Pan & Zoom:** Use `Middle Mouse` or `Spacebar` to pan, and the `Mouse Wheel` to smoothly zoom.
 - **Tools:** Pen (various dynamic brushes), Transparent Pen, Eraser, Blur Smudge Tool, Text, and Geometric Shapes.
 - **Mac-style UI:** Beautiful glassmorphism panels, dark/light theme, and dynamic cursors.
 - **No Dependencies:** Built completely with Vanilla JS ES2022. No React, no bundlers!
 
-### 🛠️ Technologies Built With
+### Technologies Built With
 - **HTML5 Canvas** (2D Context & Virtual Camera)
 - **Vanilla JavaScript** (ES2022 Modules)
 - **CSS3** (Custom Properties, Flexbox, UI glassmorphism)
 
-### 🚀 Installation
+### Installation
 1. Clone the repository: `git clone https://github.com/KaganAk71/WebDraw.git`
 2. Run any static server (e.g., Python): `python3 -m http.server 8000`
 3. Navigate to `http://localhost:8000` on your browser!
 
-### 📖 Usage
+### Usage
 - **Space + Drag** or **Middle click:** Pan around the infinite canvas.
 - **Mouse Wheel:** Zoom in and out.
 - **Right Click:** Erase instantly or pan (configurable in settings).
 - **Shortcuts:** `H` (Hand), `P` (Pen), `E` (Eraser), `B` (Blur), `T` (Text), `R` (Shape), `S` (Settings).
 
-### 🗺️ Roadmap
+### Roadmap
 - [x] Infinite Canvas & Chunked memory rendering
 - [x] Dynamic Grid Backgrounds
 - [x] Blur, Shape, and Text tools
@@ -67,28 +67,28 @@ Contributions are what make the open-source community such an amazing place to l
 
 **Web Draw**, yalnızca HTML5 Canvas, Vanilla JavaScript ve CSS3 ile saf (pure) olarak geliştirilmiş, performanslı bir web çizim motorudur. Sonsuz bir tuval altyapısına, şık Mac tarzı bir arayüze ve eksiksiz çizim araçlarına sahiptir.
 
-### 🌟 Özellikler
+### Özellikler
 - **Sonsuz Tuval (Infinite Canvas):** Belleği yormayan `Chunked-Raster` (Parçalı Raster) mimarisi. Donmadan sınırsızca çizin.
 - **Donanımsal Kaydırma & Yakınlaştırma:** Kaydırmak (pan) için `Boşluk (+ Sol Tık)` ya da `Orta Tuş` kullanın. Pürüzsüz yakınlaştırma için `Fare Tekerleği`ni kullanın.
 - **Araçlar:** Kalem (Tükenmez, kurşun, fosforlu, suluboya vb.), Silgi, Bulanıklaştırma (Blur), Metin ve Geometrik Şekiller.
 - **Gelişmiş Arayüz:** Karanlık/aydınlık (Dark/Light) tema, cam efektleri (glassmorphism) ve dinamik imleç.
 - **Sıfır Bağımlılık (No Dependencies):** React veya paketleyici (Webpack vs.) gerektirmez. Saf Vanilla JS.
 
-### 🛠️ Kullanılan Teknolojiler
+### Kullanılan Teknolojiler
 - **HTML5 Canvas** (2D Render Motoru ve Sanal Kamera)
 - **Vanilla JavaScript** (ES2022 Modüler Yapı)
 - **CSS3** (Renk Değişkenleri, Flexbox, UI Cam Efekti)
 
-### 🚀 Kurulum & Kullanım
+### Kurulum & Kullanım
 1. Repoyu klonlayın: `git clone https://github.com/KaganAk71/WebDraw.git`
 2. Herhangi bir statik sunucu ile başlatın: `python3 -m http.server 8000`
 3. Tarayıcınızda `http://localhost:8000` adresine gidin. Bütün sistem bu kadar!
 
-### 📖 Kısayollar
+### Kısayollar
 - **Pan (El Aracı):** `Boşluk tuşuna basılı tutun` veya farenizin orta topuna basılı tutun.
 - **Diğerleri:** `H` (El), `P` (Kalem), `E` (Silgi), `B` (Bulanıklaştırma), `T` (Yazı), `R` (Şekiller), `S` (Ayarlar).
 
-### 🗺️ Yol Haritası (Roadmap)
+### Yol Haritası (Roadmap)
 - [x] Parçalı Sonsuz Tuval (Chunked rendering) Mimarisinin Kurulması
 - [x] Dinamik Kılavuz (Grid) Çizgileri 
 - [x] Yeni Araçlar (Şekil, Metin, Blur)
@@ -108,6 +108,8 @@ Açık kaynak dünyasını yaşatan şey sizlerin katkılarıdır! İstediğiniz
 <br/>
 
 ## 📈 Star History
+
+## Star History
 
 <a href="https://www.star-history.com/?repos=KaganAk71%2FWebDraw&type=date&legend=top-left">
  <picture>
